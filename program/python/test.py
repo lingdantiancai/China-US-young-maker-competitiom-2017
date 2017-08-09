@@ -1,58 +1,47 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import animation
+# -*- coding: utf-8 -*-
+"""
+http://blog.csdn.net/chenghit
+"""
+import wx
+class MainWindow(wx.Frame):
+    """We simply derive a new class of Frame."""
+    def __init__(self, parent, title):
+        wx.Frame.__init__(self, parent, title = title, size = (600, 400))
+        self.control = wx.TextCtrl(self, style = wx.TE_MULTILINE)
+        self.CreateStatusBar()    # 创建位于窗口的底部的状态栏
 
-# New figure with white background
-fig = plt.figure(figsize=(6,6), facecolor='white')
+        # 设置菜单
+        filemenu = wx.Menu()
 
-# New axis over the whole figure, no frame and a 1:1 aspect ratio
-ax = fig.add_axes([0, 0, 1, 1], frameon=False, aspect=1)
+        # wx.ID_ABOUT和wx.ID_EXIT是wxWidgets提供的标准ID
+        menuAbout = filemenu.Append(wx.ID_ABOUT, "&About", \
+            " Information about this program")    # (ID, 项目名称, 状态栏信息)
+        filemenu.AppendSeparator()
+        menuExit = filemenu.Append(wx.ID_EXIT, "E&xit", \
+            " Terminate the program")    # (ID, 项目名称, 状态栏信息)
 
-# Number of ring
-n = 50
-size_min = 50
-size_max = 50 ** 2
+        # 创建菜单栏
+        menuBar = wx.MenuBar()
+        menuBar.Append(filemenu, "&File")    # 在菜单栏中添加filemenu菜单
+        self.SetMenuBar(menuBar)    # 在frame中添加菜单栏
 
-# Ring position
-pos = np.random.uniform(0, 1, (n,2))
+        # 设置events
+        self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
+        self.Bind(wx.EVT_MENU, self.OnExit, menuExit)
 
-# Ring colors
-color = np.ones((n,4)) * (0,0,0,1)
-# Alpha color channel geos from 0(transparent) to 1(opaque)
-color[:,3] = np.linspace(0, 1, n)
+        self.Show(True)
 
-# Ring sizes
-size = np.linspace(size_min, size_max, n)
+    def OnAbout(self, e):
+        # 创建一个带"OK"按钮的对话框。wx.OK是wxWidgets提供的标准ID
+        dlg = wx.MessageDialog(self, "A small text editor.", \
+            "About Sample Editor", wx.OK)    # 语法是(self, 内容, 标题, ID)
+        dlg.ShowModal()    # 显示对话框
+        dlg.Destroy()    # 当结束之后关闭对话框
 
-# Scatter plot
-scat = ax.scatter(pos[:,0], pos[:,1], s=size, lw=0.5, edgecolors=color, facecolors='None')
+    def OnExit(self, e):
+        self.Close(True)    # 关闭整个frame
 
-# Ensure limits are [0,1] and remove ticks
-ax.set_xlim(0, 1), ax.set_xticks([])
-ax.set_ylim(0, 1), ax.set_yticks([])
 
-def update(frame):
-    global pos, color, size
-
-    # Every ring is made more transparnt
-    color[:, 3] = np.maximum(0, color[:,3]-1.0/n)
-
-    # Each ring is made larger
-    size += (size_max - size_min) / n
-
-    # Reset specific ring
-    i = frame % 50
-    pos[i] = np.random.uniform(0, 1, 2)
-    size[i] = size_min
-    color[i, 3] = 1
-
-    # Update scatter object
-    scat.set_edgecolors(color)
-    scat.set_sizes(size)
-    scat.set_offsets(pos)
-
-    # Return the modified object
-    return scat,
-
-anim = animation.FuncAnimation(fig, update, interval=10, blit=True, frames=200)
-plt.show()
+app = wx.App(False)
+frame = MainWindow(None, title = "Small editor")
+app.MainLoop()
