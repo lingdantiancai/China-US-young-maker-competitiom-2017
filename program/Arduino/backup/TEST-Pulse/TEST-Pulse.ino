@@ -37,17 +37,21 @@ void loop() {
   {
     sum2 = sum2+analogRead(A1); //以Jz个数据为一组，求平均，进行平均降噪
   }
-  b = sum2/jz ;
-
-   for(i =0;i<jz;i++ )
+  b = sum2/jz;
+   for(i=0;i<jz;i++)
   {
     sum3 = sum3+analogRead(A2); //以Jz个数据为一组，求平均，进行平均降噪
   }
   c = sum3/jz ;
+ if (a>100)
+ myservo.write(2);
+if (a<100)
+myservo.write(35);
 
- a1 = a%200;
- out = map(a1,40,200,5,40);
- myservo.write(out);
+// a1 = a%150;
+ 
+// out = map(a1,0,150,5,40);
+// myservo.write(out);
  //***************************
  //Serial.print(out);
  //Serial.print(" ");
